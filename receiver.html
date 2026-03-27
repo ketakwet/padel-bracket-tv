@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Padel Bracket TV</title>
+
+    <!-- CAF Receiver -->
+    <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #111;
+            overflow: hidden;
+        }
+        canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="screen"></canvas>
+
+    <script>
+        const canvas = document.getElementById("screen");
+        const ctx = canvas.getContext("2d");
+
+        // Resize canvas to full resolution
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.onresize = resize;
+
+        // CAF Receiver
+        const context = cast.framework.CastReceiverContext.getInstance();
+
+        // Custom channel for bracket data
+        const bus = context.getCastMessageBus("urn:x-cast:padel.bracket");
+
+        bus.onMessage = (event) => {
+            const data = JSON.parse(event.data);
+            renderBracket(data);
+        };
+
+        // Minimal renderer (we will replace this later)
+        function renderBracket(data) {
+            ctx.fillStyle = "#111";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#0f0";
+            ctx.font = "40px Arial";
+            ctx.fillText("Bracket reçu :", 50, 80);
+
+            ctx.font = "28px Arial";
+            ctx.fillText(JSON.stringify(data), 50, 140);
+        }
+
+        context.start();
+    </script>
+</body>
+</html>
