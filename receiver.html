@@ -26,10 +26,11 @@
     <canvas id="screen"></canvas>
 
     <script>
+        console.log("Receiver démarré");
+
         const canvas = document.getElementById("screen");
         const ctx = canvas.getContext("2d");
 
-        // Resize canvas to full resolution
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -37,18 +38,18 @@
         resize();
         window.onresize = resize;
 
-        // CAF Receiver
+        // Initialisation CAF
         const context = cast.framework.CastReceiverContext.getInstance();
 
-        // Custom channel for bracket data
+        // Canal custom
         const bus = context.getCastMessageBus("urn:x-cast:padel.bracket");
 
         bus.onMessage = (event) => {
+            console.log("Message reçu :", event.data);
             const data = JSON.parse(event.data);
             renderBracket(data);
         };
 
-        // Minimal renderer (we will replace this later)
         function renderBracket(data) {
             ctx.fillStyle = "#111";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -61,7 +62,9 @@
             ctx.fillText(JSON.stringify(data), 50, 140);
         }
 
-        context.start();
+        // Important : démarre le receiver en mode actif
+        context.setInactivityTimeout(3600);
+        context.start({ statusText: "Padel Bracket TV" });
     </script>
 </body>
 </html>
