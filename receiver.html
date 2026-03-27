@@ -4,8 +4,7 @@
     <meta charset="utf-8" />
     <title>Padel Bracket TV</title>
 
-    <!-- CAF Receiver -->
-    <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <script src="https://www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
 
     <style>
         html, body {
@@ -23,48 +22,49 @@
 </head>
 
 <body>
-    <canvas id="screen"></canvas>
+<canvas id="screen"></canvas>
 
-    <script>
-        console.log("Receiver démarré");
+<script>
+    console.log("Receiver démarré (API v2)");
 
-        const canvas = document.getElementById("screen");
-        const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById("screen");
+    const ctx = canvas.getContext("2d");
 
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resize();
-        window.onresize = resize;
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.onresize = resize;
 
-        // Initialisation CAF
-        const context = cast.framework.CastReceiverContext.getInstance();
+    // Receiver Manager
+    const receiverManager = cast.receiver.CastReceiverManager.getInstance();
+    console.log("ReceiverManager OK");
 
-        // Canal custom
-        const bus = context.getCastMessageBus("urn:x-cast:padel.bracket");
+    // Message Bus
+    const messageBus = receiverManager.getCastMessageBus("urn:x-cast:padel.bracket");
 
-        bus.onMessage = (event) => {
-            console.log("Message reçu :", event.data);
-            const data = JSON.parse(event.data);
-            renderBracket(data);
-        };
+    messageBus.onMessage = function(event) {
+        console.log("Message reçu :", event.data);
+        const data = JSON.parse(event.data);
+        renderBracket(data);
+    };
 
-        function renderBracket(data) {
-            ctx.fillStyle = "#111";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function renderBracket(data) {
+        ctx.fillStyle = "#111";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "#0f0";
-            ctx.font = "40px Arial";
-            ctx.fillText("Bracket reçu :", 50, 80);
+        ctx.fillStyle = "#0f0";
+        ctx.font = "40px Arial";
+        ctx.fillText("Bracket reçu :", 50, 80);
 
-            ctx.font = "28px Arial";
-            ctx.fillText(JSON.stringify(data), 50, 140);
-        }
+        ctx.font = "28px Arial";
+        ctx.fillText(JSON.stringify(data), 50, 140);
+    }
 
-        // Important : démarre le receiver en mode actif
-        context.setInactivityTimeout(3600);
-        context.start({ statusText: "Padel Bracket TV" });
-    </script>
+    receiverManager.start();
+    console.log("Receiver démarré !");
+</script>
+
 </body>
 </html>
